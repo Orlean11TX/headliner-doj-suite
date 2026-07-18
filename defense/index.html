@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Headliner DOJ Suite — Defense v4.0.1 Alpha</title>
+<title>Headliner DOJ Suite — Defense v4.1.0</title>
 <style>
 :root{
   --bg:#080808;--panel:#141414;--panel2:#202020;--line:#3d3d3d;
@@ -324,6 +324,72 @@ button{cursor:pointer;touch-action:manipulation}
 }
 </style>
 
+
+<style id="workflowV410Styles">
+/* Attorney Workflow sprint */
+.workflow-summary{
+  position:sticky;top:0;z-index:12;
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) auto;
+  gap:7px;align-items:center;background:#0a111c;border:1px solid #34435b;
+  border-radius:10px;padding:7px 9px;box-shadow:0 8px 22px rgba(0,0,0,.32)
+}
+.workflow-stat{min-width:0}
+.workflow-stat small{
+  display:block;color:#8997ac;font-size:8px;font-weight:950;
+  text-transform:uppercase;letter-spacing:.06em
+}
+.workflow-stat strong{
+  display:block;font-size:16px;white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;font-variant-numeric:tabular-nums
+}
+.workflow-stat .saved{color:#7ee0a5}
+.workflow-collapse-all{
+  min-height:36px;border:1px solid #455670;border-radius:8px;
+  background:#1b2739;color:#fff;font-size:10px;font-weight:950;padding:0 11px
+}
+.collapsible-panel{position:relative}
+.panel-collapse{
+  position:absolute;right:8px;top:6px;z-index:3;min-width:34px;height:27px;
+  border:1px solid #455670;border-radius:7px;background:#202c40;color:#fff;
+  font-weight:950;cursor:pointer
+}
+.collapsible-panel.is-collapsed{min-height:39px!important;max-height:39px!important;overflow:hidden!important}
+.collapsible-panel.is-collapsed > *:not(.panel-collapse):not(.collapse-title){display:none!important}
+.collapse-title{
+  display:none;color:#dabb62;font-size:10px;font-weight:950;
+  text-transform:uppercase;letter-spacing:.07em;padding:7px 38px 7px 8px
+}
+.collapsible-panel.is-collapsed .collapse-title{display:block}
+.v4-card .panel-collapse{top:5px}
+.charge-btn{
+  position:relative;transition:transform .12s ease,border-color .12s ease,background .12s ease;
+  border-left:5px solid #455670!important
+}
+.charge-btn:hover{transform:translateY(-1px);border-color:#dabb62!important;background:#172234!important}
+.charge-btn[data-classification="Felony"]{border-left-color:#bd4d4d!important}
+.charge-btn[data-classification="Misdemeanor"]{border-left-color:#d1a93f!important}
+.card{
+  border-left-width:5px!important;box-shadow:0 5px 16px rgba(0,0,0,.18)
+}
+.card.felony{border-left-color:#bd4d4d!important}
+.card:not(.felony){border-left-color:#d1a93f!important}
+.card-name{font-size:14px!important;letter-spacing:.01em}
+.card-bottom{background:#0b0b0b;border-radius:8px;padding:6px}
+.quick-compare{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin-top:6px
+}
+.quick-compare-item{
+  border:1px solid #4a5362;background:#121b28;border-radius:7px;padding:6px;
+  color:#d8e0ec;font-size:9px;line-height:1.25
+}
+.quick-compare-item b{display:block;color:#dabb62;font-size:10px}
+@media(max-width:760px){
+  .workflow-summary{position:relative;grid-template-columns:1fr 1fr}
+  .workflow-collapse-all{grid-column:1/-1;min-height:46px}
+  .panel-collapse{height:38px;min-width:44px}
+}
+</style>
+
 </head>
 <body>
 
@@ -336,7 +402,7 @@ button{cursor:pointer;touch-action:manipulation}
     <input id="loginPassword" type="password" autocomplete="current-password" required>
     <button id="loginButton" type="submit">Unlock Defense</button>
     <div id="loginError" class="login-error" role="alert"></div>
-    <div class="login-foot">Suite v4.0.1 Alpha • Penal Code PC7.17.26 • Session remains active for 7 days</div>
+    <div class="login-foot">Suite v4.1.0 • Penal Code PC7.17.26 • Session remains active for 7 days</div>
   </form>
 </div>
 <div id="defenseApp" class="app app-locked">
@@ -347,7 +413,7 @@ button{cursor:pointer;touch-action:manipulation}
     <div><div class="suitename">HEADLINER DOJ SUITE</div><div class="modulename">Defense</div></div>
   </div>
   <div class="suite-meta">
-    <span class="status-pill">Suite v4.0.1 Alpha</span>
+    <span class="status-pill">Suite v4.1.0</span>
     <span class="status-pill">PC7.17.26</span>
     <button id="commandBtn" class="suite-action" title="Open command palette">🔎 Search & Commands <span style="opacity:.7">/</span></button>
   </div>
@@ -358,6 +424,15 @@ button{cursor:pointer;touch-action:manipulation}
   <div class="timer-card" id="waitCard"><div class="timer-title">Officer Wait</div><div class="timer-display" id="waitDisplay">00:00</div><div class="timer-sub" id="waitSub">Waiting for officer readiness</div><div class="timer-controls"><button class="timer-btn primary" id="waitStart">Start</button><button class="timer-btn" id="waitPause">Pause</button><button class="timer-btn" id="beginCall">Begin Cell Call</button><button class="timer-btn danger" id="waitReset">Reset</button></div></div>
   <div class="timer-card cell" id="cellCard"><div class="timer-title">Cell Call — 15 Minute Limit</div><div class="timer-display" id="cellDisplay">15:00</div><div class="timer-sub" id="cellSub">Ready</div><div class="timer-controls"><button class="timer-btn primary" id="cellStart">Start</button><button class="timer-btn" id="cellPause">Pause</button><button class="timer-btn" id="cellFinish">Finish</button><button class="timer-btn danger" id="cellReset">Reset</button></div></div>
   <div class="timer-card case"><div class="timer-title">Call Details</div><div class="case-mini"><input id="caseNumber" placeholder="Case number"><input id="clientName" placeholder="Client"><input id="officerName" placeholder="Officer"><select id="callOutcome"><option value="">Outcome…</option><option>Plea Accepted</option><option>Plea Declined</option><option>No Agreement</option><option>Released / Charges Dropped</option><option>Trial Requested</option></select><input class="wide" id="callTitle" placeholder="Optional call label"></div><div class="timeline-count" id="timelineCount">0 timeline events</div><div class="timeline-tools"><button class="timer-btn" id="viewTimeline">View Timeline</button><button class="timer-btn" id="quickEvent">Add Event</button></div></div>
+</div>
+
+
+<div class="workflow-summary" id="workflowSummaryV410">
+  <div class="workflow-stat"><small>Case</small><strong id="wfCase">Untitled</strong></div>
+  <div class="workflow-stat"><small>Negotiating With</small><strong id="wfAuthority">Officer</strong></div>
+  <div class="workflow-stat"><small>Original</small><strong id="wfOriginal">0 mo / $0</strong></div>
+  <div class="workflow-stat"><small>Current / Saved</small><strong class="saved" id="wfCurrent">0 mo / $0</strong></div>
+  <button type="button" class="workflow-collapse-all" id="collapseAllV410">Collapse Optional Panels</button>
 </div>
 
 <div class="top">
@@ -1218,6 +1293,135 @@ if(window.COMMANDS){COMMANDS.unshift({name:"Start response timer",sub:"Begin tra
   });
 
   renderV4();
+})();
+</script>
+
+
+<script id="workflowV410Script">
+(() => {
+  const $w=id=>document.getElementById(id);
+  const COLLAPSE_KEY="headlinerDefenseV410Collapsed";
+  let collapsed={};
+  try{collapsed=JSON.parse(localStorage.getItem(COLLAPSE_KEY)||"{}")}catch{}
+
+  function makeCollapsible(el,title,key){
+    if(!el || el.classList.contains("collapsible-panel")) return;
+    el.classList.add("collapsible-panel");
+    const titleEl=document.createElement("div");
+    titleEl.className="collapse-title";
+    titleEl.textContent=title;
+    const btn=document.createElement("button");
+    btn.type="button";
+    btn.className="panel-collapse";
+    btn.title="Collapse or expand this section";
+    btn.textContent="–";
+    el.prepend(titleEl);
+    el.prepend(btn);
+    const apply=()=>{
+      const is=!!collapsed[key];
+      el.classList.toggle("is-collapsed",is);
+      btn.textContent=is?"+":"–";
+      btn.setAttribute("aria-expanded",String(!is));
+    };
+    btn.addEventListener("click",e=>{
+      e.stopPropagation();
+      collapsed[key]=!collapsed[key];
+      localStorage.setItem(COLLAPSE_KEY,JSON.stringify(collapsed));
+      apply();
+    });
+    apply();
+  }
+
+  function setupPanels(){
+    makeCollapsible(document.querySelector(".case-workspace-v4 .v4-card:first-child"),
+      "Participants & Negotiation Authority","participants");
+    makeCollapsible(document.querySelector(".case-workspace-v4 .v4-card:nth-child(2)"),
+      "Negotiation Intelligence","intelligence");
+    makeCollapsible(document.querySelector(".bottom .box:nth-child(1)"),
+      "Quick Counter","quickCounter");
+    makeCollapsible(document.querySelector(".bottom .box:nth-child(2)"),
+      "Deal Quality","dealQuality");
+    makeCollapsible(document.querySelector(".bottom .box:nth-child(3)"),
+      "Weapons License","weaponLicense");
+  }
+
+  function totalsSafe(){
+    try{return totals()}catch{return {ot:0,of:0,pt:0,pf:0}}
+  }
+  function moneyW(n){return "$"+Math.max(0,Math.round(Number(n)||0)).toLocaleString()}
+  function updateSticky(){
+    const t=totalsSafe();
+    const caseNum=$w("caseNumber")?.value?.trim();
+    const client=$w("clientName")?.value?.trim();
+    $w("wfCase").textContent=caseNum || client || "Untitled";
+    let auth="Officer";
+    try{
+      const ni=JSON.parse(localStorage.getItem("headlinerDefenseV4Negotiation")||"{}");
+      auth=ni.authority||"Officer";
+      if(ni.representative)auth+=` • ${ni.representative}`;
+      const manualMonths=Number(ni.monthsOff)||0;
+      const manualFine=Number(ni.fineOff)||0;
+      const currentT=Math.max(0,(t.pt||0)-manualMonths);
+      const currentF=Math.max(0,(t.pf||0)-manualFine);
+      $w("wfOriginal").textContent=`${t.ot||0} mo / ${moneyW(t.of||0)}`;
+      $w("wfCurrent").textContent=`${currentT} mo / ${moneyW(currentF)}`;
+    }catch{
+      $w("wfOriginal").textContent=`${t.ot||0} mo / ${moneyW(t.of||0)}`;
+      $w("wfCurrent").textContent=`${t.pt||0} mo / ${moneyW(t.pf||0)}`;
+    }
+    $w("wfAuthority").textContent=auth;
+  }
+
+  function annotateChargeButtons(){
+    document.querySelectorAll(".charge-btn").forEach(btn=>{
+      const txt=btn.textContent||"";
+      if(/Felony/i.test(txt))btn.dataset.classification="Felony";
+      else if(/Misdemeanor/i.test(txt))btn.dataset.classification="Misdemeanor";
+    });
+  }
+
+  function addQuickCompare(){
+    document.querySelectorAll("#selected .card").forEach((card,i)=>{
+      if(card.querySelector(".quick-compare"))return;
+      let item;
+      try{item=state.selected[i]}catch{return}
+      if(!item)return;
+      let suggestionsList=[];
+      try{suggestionsList=suggestions(item).slice(0,3)}catch{}
+      if(!suggestionsList.length)return;
+      const wrap=document.createElement("div");
+      wrap.className="quick-compare";
+      wrap.innerHTML=suggestionsList.map(s=>
+        `<div class="quick-compare-item"><b>${esc(s.code)}</b>${esc(s.charge)}<br>${s.time} mo • ${moneyW(s.fine)}</div>`
+      ).join("");
+      card.appendChild(wrap);
+    });
+  }
+
+  const originalRender=window.render;
+  if(typeof originalRender==="function"){
+    window.render=function(){
+      originalRender();
+      setTimeout(()=>{annotateChargeButtons();addQuickCompare();updateSticky()},0);
+    };
+  }
+
+  $w("collapseAllV410").addEventListener("click",()=>{
+    const optional=["participants","quickCounter","dealQuality","weaponLicense"];
+    const shouldCollapse=optional.some(k=>!collapsed[k]);
+    optional.forEach(k=>collapsed[k]=shouldCollapse);
+    localStorage.setItem(COLLAPSE_KEY,JSON.stringify(collapsed));
+    location.reload();
+  });
+
+  document.addEventListener("input",()=>setTimeout(updateSticky,20));
+  document.addEventListener("change",()=>setTimeout(updateSticky,20));
+  document.addEventListener("click",()=>setTimeout(()=>{updateSticky();annotateChargeButtons();addQuickCompare()},30));
+
+  setupPanels();
+  annotateChargeButtons();
+  addQuickCompare();
+  updateSticky();
 })();
 </script>
 
