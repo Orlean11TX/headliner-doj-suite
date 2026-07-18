@@ -1,3 +1,10 @@
-# Headliner DOJ Secure Tools
+# Headliner DOJ Suite
 
-Secure application files for GitHub Pages. Credentials are distributed separately.
+Full-page web applications for authorized Headliner DOJ personnel.
+
+## Modules
+
+- `defense/` — Defense negotiation and cell-call workflow
+- `judicial/` — Judicial workflow (migration in progress)
+
+No credentials are stored in this repository documentation.
