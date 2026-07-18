@@ -159,6 +159,13 @@ button{cursor:pointer;touch-action:manipulation}
 .login-card button:disabled{opacity:.65;cursor:wait}.login-error{min-height:28px;color:#ff7373;font-size:16px;font-weight:900;text-align:center;margin-top:14px}
 .login-foot{color:#8190a8;text-align:center;font-size:13px;margin-top:24px}.lock-action{background:#704b82}
 
+
+/* NEGOTIATOR TIMER WORKSPACE */
+.timer-workspace{background:#0b111b;border-bottom:1px solid #34435b;padding:8px 10px;display:grid;grid-template-columns:1fr 1fr 1.2fr auto;gap:8px;align-items:stretch}
+.timer-card{background:#111a29;border:1px solid #34435b;border-radius:12px;padding:9px;min-width:0}.timer-card.active{border-color:#dfbb59;box-shadow:0 0 0 2px rgba(223,187,89,.12)}.timer-card.overtime{border-color:#ff4e4e;background:#351214;animation:timerFlash 1s step-end infinite}.timer-title{font-size:10px;color:#9eabc0;font-weight:950;text-transform:uppercase;letter-spacing:.08em}.timer-display{font-size:clamp(25px,3vw,42px);font-variant-numeric:tabular-nums;font-weight:950;line-height:1.1;margin:3px 0}.timer-sub{font-size:10px;color:#8e9bb0;min-height:13px}.timer-controls{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}.timer-btn{border:1px solid #455670;background:#202c40;color:#fff;border-radius:7px;padding:6px 8px;font-size:10px;font-weight:900}.timer-btn.primary{background:#b89232;color:#08101c;border-color:#dfbb59}.timer-btn.danger{background:#6f2525;border-color:#ad4545}.case-mini{display:grid;grid-template-columns:1fr 1fr;gap:5px}.case-mini input,.case-mini select{min-width:0;width:100%;height:31px;background:#08111e;color:#fff;border:1px solid #455670;border-radius:7px;padding:0 8px;font-size:11px}.case-mini .wide{grid-column:1/-1}.timeline-count{font-size:11px;color:#dabb62;font-weight:900;margin-top:5px}@keyframes timerFlash{50%{background:#6d181c}}
+.report-modal{position:fixed;inset:0;background:rgba(0,0,0,.86);display:none;align-items:center;justify-content:center;z-index:95000;padding:14px}.report-modal.show{display:flex}.report-card{width:min(980px,97vw);max-height:94vh;overflow:auto;background:#f7f7f3;color:#171717;border-radius:14px;padding:24px}.report-card h1{margin:0;font-size:27px}.report-card h2{font-size:16px;border-bottom:2px solid #222;padding-bottom:4px;margin-top:20px}.report-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.report-field{border:1px solid #bbb;border-radius:6px;padding:8px}.report-field b{display:block;font-size:10px;text-transform:uppercase;color:#555}.report-table{width:100%;border-collapse:collapse}.report-table th,.report-table td{border-bottom:1px solid #ccc;text-align:left;padding:7px;font-size:12px}.report-actions{position:sticky;bottom:-24px;background:#eee;border-top:1px solid #bbb;margin:20px -24px -24px;padding:12px 24px;display:flex;justify-content:flex-end;gap:8px}.report-actions button{border:0;border-radius:7px;padding:10px 14px;font-weight:900}.pdf-btn{background:#9b1f24;color:#fff}.report-close{background:#555;color:#fff}
+@media(max-width:900px){.timer-workspace{grid-template-columns:1fr 1fr}.timer-card.cell,.timer-card.case{grid-column:1/-1}.report-grid{grid-template-columns:1fr 1fr}}
+
 </style>
 </head>
 <body>
@@ -172,7 +179,7 @@ button{cursor:pointer;touch-action:manipulation}
     <input id="loginPassword" type="password" autocomplete="current-password" required>
     <button id="loginButton" type="submit">Unlock Defense</button>
     <div id="loginError" class="login-error" role="alert"></div>
-    <div class="login-foot">Suite v3.2.0 • Penal Code PC7.17.26 • Session remains active for 7 days</div>
+    <div class="login-foot">Suite v3.3.0 • Penal Code PC7.17.26 • Session remains active for 7 days</div>
   </form>
 </div>
 <div id="defenseApp" class="app app-locked">
@@ -183,10 +190,17 @@ button{cursor:pointer;touch-action:manipulation}
     <div><div class="suitename">HEADLINER DOJ SUITE</div><div class="modulename">Defense</div></div>
   </div>
   <div class="suite-meta">
-    <span class="status-pill">Suite v3.2.0</span>
+    <span class="status-pill">Suite v3.3.0</span>
     <span class="status-pill">PC7.17.26</span>
-    <button id="commandBtn" class="suite-action" title="Open command palette">⌘ Commands <span style="opacity:.7">Ctrl+K</span></button>
+    <button id="commandBtn" class="suite-action" title="Open command palette">🔎 Search & Commands <span style="opacity:.7">/</span></button>
   </div>
+</div>
+
+<div class="timer-workspace" id="timerWorkspace">
+  <div class="timer-card" id="responseCard"><div class="timer-title">Response Time</div><div class="timer-display" id="responseDisplay">00:00</div><div class="timer-sub" id="responseSub">Travel / response to cells</div><div class="timer-controls"><button class="timer-btn primary" id="responseStart">Start</button><button class="timer-btn" id="responsePause">Pause</button><button class="timer-btn" id="responseContact">Officer Contacted</button><button class="timer-btn danger" id="responseReset">Reset</button></div></div>
+  <div class="timer-card" id="waitCard"><div class="timer-title">Officer Wait</div><div class="timer-display" id="waitDisplay">00:00</div><div class="timer-sub" id="waitSub">Waiting for officer readiness</div><div class="timer-controls"><button class="timer-btn primary" id="waitStart">Start</button><button class="timer-btn" id="waitPause">Pause</button><button class="timer-btn" id="beginCall">Begin Cell Call</button><button class="timer-btn danger" id="waitReset">Reset</button></div></div>
+  <div class="timer-card cell" id="cellCard"><div class="timer-title">Cell Call — 15 Minute Limit</div><div class="timer-display" id="cellDisplay">15:00</div><div class="timer-sub" id="cellSub">Ready</div><div class="timer-controls"><button class="timer-btn primary" id="cellStart">Start</button><button class="timer-btn" id="cellPause">Pause</button><button class="timer-btn" id="cellFinish">Finish</button><button class="timer-btn danger" id="cellReset">Reset</button></div></div>
+  <div class="timer-card case"><div class="timer-title">Call Details</div><div class="case-mini"><input id="caseNumber" placeholder="Case number"><input id="clientName" placeholder="Client"><input id="officerName" placeholder="Officer"><select id="callOutcome"><option value="">Outcome…</option><option>Plea Accepted</option><option>Plea Declined</option><option>No Agreement</option><option>Released / Charges Dropped</option><option>Trial Requested</option></select><input class="wide" id="callTitle" placeholder="Optional call label"></div><div class="timeline-count" id="timelineCount">0 timeline events</div></div>
 </div>
 
 <div class="top">
@@ -222,7 +236,7 @@ button{cursor:pointer;touch-action:manipulation}
     <button id="summaryBtn" class="action summary">Summary</button>
     <button id="clearBtn" class="action clear">Clear Case</button>
     <button id="importBtn" class="action import">Import CSV</button>
-    <button id="exportCsvBtn" class="action restore-default">Export CSV</button>
+    <button id="finishBtn" class="action summary">Finish Negotiation</button>
     <button id="restoreCsvBtn" class="action restore-default">Restore Default</button>
     <button id="aboutCsvBtn" class="action restore-default">About</button>
     <button id="lockBtn" class="action lock-action">Lock</button>
@@ -237,6 +251,9 @@ button{cursor:pointer;touch-action:manipulation}
 
 
 
+
+<div id="reportModal" class="report-modal" aria-hidden="true"><div class="report-card"><div id="reportContent"></div><div class="report-actions"><button id="printReport" class="pdf-btn">Print / Save PDF</button><button id="closeReport" class="report-close">Close</button></div></div></div>
+
 <div id="commandModal" class="command-modal" aria-hidden="true">
   <div class="command-card" role="dialog" aria-modal="true" aria-label="Command palette">
     <input id="commandInput" class="command-input" placeholder="Search charges or type a command…" autocomplete="off">
@@ -248,7 +265,7 @@ button{cursor:pointer;touch-action:manipulation}
   <div class="database-card">
     <h2>Penal Code Database</h2>
     <div class="database-grid">
-      <strong>Application</strong><span>Defense Module v3.2.0</span>
+      <strong>Application</strong><span>Defense Module v3.3.0</span>
       <strong>Version</strong><span id="aboutCsvVersion">PC7.17.26</span>
       <strong>Updated</strong><span id="aboutCsvUpdated">07/17/2026 10:39 PM CDT</span>
       <strong>Charges</strong><span id="aboutCsvCount">173</span>
@@ -538,7 +555,6 @@ const COMMANDS=[
   {name:"Open summary",sub:"Build the current cell-call summary",key:"summary",run:()=>$("#summaryBtn").click()},
   {name:"Clear case",sub:"Reset charges, positions and notes",key:"clear",run:()=>$("#clearBtn").click()},
   {name:"Import penal code CSV",sub:"Choose an updated master CSV",key:"import",run:()=>$("#importBtn").click()},
-  {name:"Export current CSV",sub:"Download the active penal-code database",key:"export",run:()=>$("#exportCsvBtn").click()},
   {name:"Penal code information",sub:"Show version, source and charge count",key:"database",run:()=>$("#aboutCsvBtn").click()},
   {name:"Lock Defense",sub:"Return to the secure login screen",key:"lock",run:()=>$("#lockBtn").click()}
 ];
@@ -558,7 +574,7 @@ $("#commandBtn").onclick=openCommandPalette;
 $("#commandInput").addEventListener("input",e=>renderCommandPalette(e.target.value));
 $("#commandInput").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();runCommand(0)}else if(e.key==="Escape")closeCommandPalette()});
 $("#commandModal").addEventListener("click",e=>{if(e.target===$("#commandModal"))closeCommandPalette()});
-document.addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){e.preventDefault();openCommandPalette()}else if(e.key==="Escape"&&$("#commandModal").classList.contains("show"))closeCommandPalette()});
+document.addEventListener("keydown",e=>{const tag=(e.target&&e.target.tagName||"").toLowerCase();if(e.key==="/"&&!$("#commandModal").classList.contains("show")&&!(["input","textarea","select"].includes(tag))){e.preventDefault();openCommandPalette()}else if(e.key==="Escape"&&$("#commandModal").classList.contains("show"))closeCommandPalette()});
 
 function populateSections(){
   const select=$("#sectionSelect");
@@ -740,7 +756,7 @@ $("#copyBtn").onclick=async()=>{
 $("#importBtn").addEventListener("click",()=>$("#importFile").click());
 $("#importFile").addEventListener("change",event=>importCsvFile(event.target.files[0]));
 $("#restoreCsvBtn").addEventListener("click",restoreBuiltInCsv);
-$("#exportCsvBtn").addEventListener("click",exportCurrentCsv);
+
 $("#aboutCsvBtn").addEventListener("click",()=>$("#csvAboutModal").classList.add("open"));
 $("#closeCsvAbout").addEventListener("click",()=>$("#csvAboutModal").classList.remove("open"));
 $("#csvAboutModal").addEventListener("click",e=>{if(e.target.id==="csvAboutModal")e.currentTarget.classList.remove("open")});
@@ -748,5 +764,58 @@ $("#csvAboutModal").addEventListener("click",e=>{if(e.target.id==="csvAboutModal
 document.getElementById("lockBtn").addEventListener("click",lockDefense);
 restoreSession();
 </script>
+
+<script>
+(()=>{
+const TIMER_STORE="headlinerDefenseTimersV330",DETAIL_STORE="headlinerDefenseCallDetailsV330";
+const nowIso=()=>new Date().toISOString();
+let timerState={response:{elapsed:0,running:false,startedAt:null},wait:{elapsed:0,running:false,startedAt:null},cell:{elapsed:0,running:false,startedAt:null,limit:900},timeline:[]};
+try{timerState={...timerState,...JSON.parse(localStorage.getItem(TIMER_STORE)||"{}")};["response","wait","cell"].forEach(k=>{timerState[k]={...(k==="cell"?{elapsed:0,running:false,startedAt:null,limit:900}:{elapsed:0,running:false,startedAt:null}),...(timerState[k]||{})};if(timerState[k].running&&timerState[k].startedAt){timerState[k].elapsed+=Math.max(0,(Date.now()-new Date(timerState[k].startedAt).getTime())/1000);timerState[k].startedAt=nowIso();}})}catch{}
+function saveTimers(){localStorage.setItem(TIMER_STORE,JSON.stringify(timerState))}
+function seconds(k){const t=timerState[k];return Math.max(0,t.elapsed+(t.running&&t.startedAt?(Date.now()-new Date(t.startedAt).getTime())/1000:0))}
+function fmt(sec){sec=Math.floor(Math.max(0,sec));return String(Math.floor(sec/60)).padStart(2,"0")+":"+String(sec%60).padStart(2,"0")}
+function stamp(iso){return new Date(iso).toLocaleTimeString([], {hour:"numeric",minute:"2-digit",second:"2-digit"})}
+function logEvent(label,detail=""){timerState.timeline.push({at:nowIso(),label,detail});saveTimers();renderTimers()}
+function start(k,label){const t=timerState[k];if(t.running)return;t.running=true;t.startedAt=nowIso();logEvent(label||`${k} timer started`)}
+function pause(k,label){const t=timerState[k];if(!t.running)return;t.elapsed=seconds(k);t.running=false;t.startedAt=null;logEvent(label||`${k} timer paused`,fmt(t.elapsed))}
+function reset(k,label){timerState[k].elapsed=0;timerState[k].running=false;timerState[k].startedAt=null;logEvent(label||`${k} timer reset`)}
+function stopNoLog(k){const t=timerState[k];if(t.running)t.elapsed=seconds(k);t.running=false;t.startedAt=null;saveTimers()}
+function renderTimers(){
+ const r=seconds("response"),w=seconds("wait"),c=seconds("cell"),remain=timerState.cell.limit-c,over=remain<0;
+ document.getElementById("responseDisplay").textContent=fmt(r);document.getElementById("waitDisplay").textContent=fmt(w);document.getElementById("cellDisplay").textContent=over?"+"+fmt(-remain):fmt(remain);
+ document.getElementById("cellSub").textContent=over?"OVERTIME":"Countdown remaining";
+ [["response", "responseCard"],["wait","waitCard"],["cell","cellCard"]].forEach(([k,id])=>document.getElementById(id).classList.toggle("active",timerState[k].running));document.getElementById("cellCard").classList.toggle("overtime",over);
+ document.getElementById("timelineCount").textContent=`${timerState.timeline.length} timeline event${timerState.timeline.length===1?"":"s"}`;
+}
+setInterval(renderTimers,250);renderTimers();
+document.getElementById("responseStart").onclick=()=>start("response","Response timer started");
+document.getElementById("responsePause").onclick=()=>pause("response","Response timer paused");
+document.getElementById("responseReset").onclick=()=>reset("response","Response timer reset");
+document.getElementById("responseContact").onclick=()=>{stopNoLog("response");logEvent("Officer contacted",`Response time: ${fmt(seconds("response"))}`);start("wait","Officer wait started")};
+document.getElementById("waitStart").onclick=()=>start("wait","Officer wait started");
+document.getElementById("waitPause").onclick=()=>pause("wait","Officer wait paused");
+document.getElementById("waitReset").onclick=()=>reset("wait","Officer wait reset");
+document.getElementById("beginCall").onclick=()=>{stopNoLog("wait");logEvent("Cell call began",`Officer wait: ${fmt(seconds("wait"))}`);start("cell","15-minute cell-call timer started")};
+document.getElementById("cellStart").onclick=()=>start("cell","Cell-call timer started");
+document.getElementById("cellPause").onclick=()=>pause("cell","Cell-call timer paused");
+document.getElementById("cellReset").onclick=()=>reset("cell","Cell-call timer reset");
+document.getElementById("cellFinish").onclick=()=>{stopNoLog("cell");const c=seconds("cell");logEvent("Cell call finished",`Duration: ${fmt(c)}${c>900?` • Overtime: ${fmt(c-900)}`:""}`);openReport()};
+const detailIds=["caseNumber","clientName","officerName","callOutcome","callTitle"];
+let details={};try{details=JSON.parse(localStorage.getItem(DETAIL_STORE)||"{}")||{}}catch{}
+detailIds.forEach(id=>{const el=document.getElementById(id);el.value=details[id]||"";el.addEventListener("input",()=>{details[id]=el.value;localStorage.setItem(DETAIL_STORE,JSON.stringify(details))})});
+function esc(v){return String(v??"").replace(/[&<>\"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]))}
+function rowsOriginal(){return (state.selected||[]).map(x=>`<tr><td>${esc(x.qty+"× "+x.code)}</td><td>${esc(x.charge)}</td><td>${esc(x.classification)}</td><td>${x.time*x.qty} mo</td><td>${money(x.fine*x.qty)}</td></tr>`).join("")||'<tr><td colspan="5">No charges recorded.</td></tr>'}
+function rowsNegotiated(){return (state.selected||[]).map(x=>{if(x.dropped)return `<tr><td>${esc(x.qty+"× "+x.code)}</td><td>${esc(x.charge)}</td><td colspan="3"><b>DROPPED</b></td></tr>`;const e=effective(x);return `<tr><td>${esc(x.qty+"× "+e.code)}</td><td>${esc(e.charge)}</td><td>${esc(e.classification)}</td><td>${e.time*x.qty} mo</td><td>${money(e.fine*x.qty)}</td></tr>`}).join("")||'<tr><td colspan="5">No negotiated charges recorded.</td></tr>'}
+function openReport(){stopNoLog("response");stopNoLog("wait");stopNoLog("cell");logEvent("Negotiation report generated");const t=totals(),c=seconds("cell"),reduction=t.ot?Math.max(0,Math.round((t.ot-t.pt)/t.ot*100)):0;const timeline=timerState.timeline.map(e=>`<tr><td>${esc(stamp(e.at))}</td><td>${esc(e.label)}</td><td>${esc(e.detail||"")}</td></tr>`).join("");
+ document.getElementById("reportContent").innerHTML=`<h1>Headliner DOJ Suite</h1><div>Defense Negotiation Summary</div><div class="report-grid" style="margin-top:14px"><div class="report-field"><b>Negotiation ID</b>NEG-${new Date().toISOString().slice(0,10).replaceAll("-","")}-${String(Date.now()).slice(-4)}</div><div class="report-field"><b>Case</b>${esc(details.caseNumber||"—")}</div><div class="report-field"><b>Client</b>${esc(details.clientName||"—")}</div><div class="report-field"><b>Officer</b>${esc(details.officerName||"—")}</div><div class="report-field"><b>Outcome</b>${esc(details.callOutcome||"—")}</div><div class="report-field"><b>Response</b>${fmt(seconds("response"))}</div><div class="report-field"><b>Officer Wait</b>${fmt(seconds("wait"))}</div><div class="report-field"><b>Cell Call</b>${fmt(c)}${c>900?` (+${fmt(c-900)} OT)`:""}</div></div><h2>Original Charges</h2><table class="report-table"><thead><tr><th>Code</th><th>Charge</th><th>Class</th><th>Time</th><th>Fine</th></tr></thead><tbody>${rowsOriginal()}</tbody></table><p><b>Original total:</b> ${t.ot} months / ${money(t.of)}</p><h2>Negotiated Charges</h2><table class="report-table"><thead><tr><th>Code</th><th>Charge</th><th>Class</th><th>Time</th><th>Fine</th></tr></thead><tbody>${rowsNegotiated()}</tbody></table><p><b>Negotiated total:</b> ${t.pt} months / ${money(t.pf)} &nbsp; • &nbsp; <b>Reduction:</b> ${reduction}%</p><h2>Timeline</h2><table class="report-table"><thead><tr><th>Time</th><th>Event</th><th>Details</th></tr></thead><tbody>${timeline||'<tr><td colspan="3">No timeline events.</td></tr>'}</tbody></table><h2>Notes</h2><div style="white-space:pre-wrap">${esc(document.getElementById("notes").value||"No notes recorded.")}</div>`;
+ document.getElementById("reportModal").classList.add("show");document.getElementById("reportModal").setAttribute("aria-hidden","false")}
+document.getElementById("finishBtn").onclick=()=>{stopNoLog("response");stopNoLog("wait");stopNoLog("cell");logEvent("Negotiation finished",`Response ${fmt(seconds("response"))} • Wait ${fmt(seconds("wait"))} • Call ${fmt(seconds("cell"))}`);openReport()};
+document.getElementById("closeReport").onclick=()=>document.getElementById("reportModal").classList.remove("show");
+document.getElementById("printReport").onclick=()=>{const content=document.getElementById("reportContent").innerHTML,w=window.open("","_blank");w.document.write(`<!doctype html><html><head><title>Defense Negotiation Summary</title><style>body{font-family:Arial,sans-serif;margin:32px;color:#111}h1{margin-bottom:0}h2{border-bottom:2px solid #222;padding-bottom:4px;margin-top:22px}.report-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.report-field{border:1px solid #aaa;padding:8px}.report-field b{display:block;font-size:10px;text-transform:uppercase;color:#555}table{width:100%;border-collapse:collapse}th,td{border-bottom:1px solid #ccc;padding:7px;text-align:left;font-size:12px}@media print{body{margin:.35in}}</style></head><body>${content}</body></html>`);w.document.close();setTimeout(()=>w.print(),250)};
+// Add timer commands
+if(window.COMMANDS){COMMANDS.unshift({name:"Start response timer",sub:"Begin tracking response to cells",key:"response",run:()=>document.getElementById("responseStart").click()},{name:"Begin cell call",sub:"Stop officer wait and start 15-minute countdown",key:"cell call",run:()=>document.getElementById("beginCall").click()},{name:"Finish negotiation",sub:"Stop timers and build PDF report",key:"finish",run:()=>document.getElementById("finishBtn").click()})}
+})();
+</script>
+
 </body>
 </html>
